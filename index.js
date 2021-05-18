@@ -5,7 +5,7 @@ const port = process.env.PORT || 3000;
 
 const qr = require('qr-image');
 
- const base_url = "https://56a7466d2703.ngrok.io"
+ const base_url = "http://localhost:3000"
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
@@ -36,11 +36,11 @@ io.on('connection', (socket) => {
 
   socket.on('qr gen', uuEvent => {
     const qrname = "qr.svg"
-    const qrEndpint = `${base_url}/webhook?uid=${uuEvent}`
-    var qr_svg = qr.image(qrEndpint, { type: 'svg' });
+    const qrEndpoint = `${base_url}/webhook?uid=${uuEvent}`
+    var qr_svg = qr.image(qrEndpoint, { type: 'svg' });
     qr_svg.pipe(require('fs').createWriteStream(qrname));
     console.log(uuEvent)
-    console.log(qrEndpint)
+    console.log(qrEndpoint)
     io.emit(`qr display ${uuEvent}`, `${qrname}?=${new Date()}`);
   });
 
