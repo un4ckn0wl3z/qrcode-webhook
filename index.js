@@ -5,7 +5,19 @@ const port = process.env.PORT || 3000;
 
 const qr = require('qr-image');
 
- const base_url = "http://localhost:3000"
+const base_url = "http://localhost:3000"
+
+var jwtAuth = require('socketio-jwt-auth');
+
+io.use(jwtAuth.authenticate({
+  secret: 'loveyou3000loveyou3000loveyou3000loveyou3000',    // required, used to verify the token's signature
+  algorithm: 'HS256',        // optional, default to be HS256
+}, function(payload, done) {
+  // done is a callback, you can use it as follows
+  console.log(payload)
+  return done(null, payload);
+}));
+
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
@@ -33,6 +45,12 @@ app.get('/webhook', (req, res) => {
   
 
 io.on('connection', (socket) => {
+  
+  console.log('Authentication passed!');
+
+  socket.emit('success', {
+    message: 'success logged in!',
+  });
 
   socket.on('qr gen', uuEvent => {
     const qrname = "qr.svg"

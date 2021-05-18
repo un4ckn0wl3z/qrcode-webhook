@@ -31,7 +31,12 @@
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
-      var socket = io();
+      var socket = io({query: 'auth_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiQW51d2F0In0.zG1kxreFbdcfYwIGIg7-FFdSZ1d-Zfe0ipYxaRbEO2k'});  
+      var gAuthen = false;
+      socket.on('success', function(data) {
+        console.log(data.message);
+        gAuthen = true;
+      })
 
       var qrsection = document.getElementById('qrsection');
       var form = document.getElementById('form');
@@ -41,6 +46,10 @@
       var displayEvent = "qr display " + uuEvent
 
       form.addEventListener('submit', function(e) {
+
+        if(!gAuthen){
+          return alert("Your token is invalid.")
+        }
 
         if(isCompletedPreviousEvent){
             uuEvent = uuidv4();
