@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO QR</title>
+    <style>
+      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+      #input:focus { outline: none; }
+      #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+
+      #qrsection {
+        height: 50px;
+         width: 30%;
+         }
+
+
+    </style>
+  </head>
+  <body>
+
+    <div id="qrsection">
+       
+    </div>
+
+    <form id="form" action="">
+      <input id="input" autocomplete="off" disabled/>
+      <button>Generate QR</button>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+      var socket = io();
+
+      var qrsection = document.getElementById('qrsection');
+      var form = document.getElementById('form');
+      //var input = document.getElementById('input');
+      var isCompletedPreviousEvent = false;
+      var uuEvent = uuidv4();
+      var displayEvent = "qr display " + uuEvent
+
+      form.addEventListener('submit', function(e) {
+
+        if(isCompletedPreviousEvent){
+            uuEvent = uuidv4();
+            displayEvent = "qr display " + uuEvent
+            isCompletedPreviousEvent = false
+        }
+
+        console.log(" #submit uuEvent =  ",  uuEvent)
+        e.preventDefault();
+        //if (input.value) {
+          socket.emit('qr gen', uuEvent);
+          input.value = '';
+          removeAllChildNodes(qrsection);
+        //}
+
+        
+
+        if(!socket.hasListeners(uuEvent)){
+            socket.once(uuEvent, function(msg) {
+            console.log(" #after uuEvent =  ",  uuEvent)
+
+            var item = document.createElement('p');
+            item.textContent = msg;
+            qrsection.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+            socket.removeAllListeners(uuEvent);
+            isCompletedPreviousEvent = true
+    });
+        }
+
+        if(!socket.hasListeners(displayEvent)){
+            socket.once(displayEvent, function(msg) {
+        
+        var item = document.createElement('img');
+        item.src = msg;
+        qrsection.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+        socket.removeAllListeners(displayEvent);
+
+      });
+        }
+
+
+
+
+    
+
+
+
+      
+
+
+      });
+
+
+
+      function removeAllChildNodes(parent) {
+          while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+      }
+   }
+
+   function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+
+
+    </script>
+  </body>
+</html>
